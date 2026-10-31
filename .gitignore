@@ -1,0 +1,43 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Data and large files
+*.csv
+*.tsv
+*.parquet
+*.jsonl
+*.h5
+*.hdf5
+data/*
+!data/.gitkeep
+!data/dataset_summary.md
+
+# Hugging Face cache
+.cache/
+
+# Model checkpoints and weights
+checkpoints/
+models/
+*.pt
+*.bin
+*.safetensors
+*.ckpt
+
+# Environment variables and secrets
+.env
+.env.*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
