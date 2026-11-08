@@ -46,7 +46,8 @@ Detailed empirical schema and distribution metrics derived from the raw data are
 
 - [x] Initial repository setup and dependency specification
 - [x] Automated dataset download and inspection pipeline (`src/prepare_data.py`)
-- [x] Exploratory data analysis, quality checks, and empirical report generation (`data/dataset_summary.md`)
+- [x] Initial dataset inspection and empirical summary (`data/dataset_summary.md`)
+- [x] Detailed offline EDA, quality/leakage checks, tables, and Matplotlib plots (`src/explore_data.py`)
 - [ ] Text cleaning, tokenization, and stratified train/validation/test split
 - [ ] DistilBERT model fine-tuning for 6-class classification
 - [ ] Baseline model evaluation (macro/weighted F1, precision, recall)
@@ -62,7 +63,9 @@ bug-severity-xai/
 │   ├── .gitkeep
 │   └── dataset_summary.md       # Empirical dataset statistics and schema
 ├── src/
-│   └── prepare_data.py          # Data download, inspection, and summary generator
+│   ├── prepare_data.py          # Data download, inspection, and summary generator
+│   └── explore_data.py          # Detailed offline EDA and Matplotlib plots
+├── reports/eda/                 # Generated EDA report, tables, figures (git-ignored)
 ├── .gitignore
 ├── README.md
 └── requirements.txt
@@ -103,6 +106,51 @@ This script will:
 3. Verify class distribution across all six severity categories.
 4. Export a local CSV copy to `data/eclipse_bug_reports.csv` (git-ignored).
 5. Generate an updated empirical report at `data/dataset_summary.md` (git-tracked).
+
+### 5. Run Detailed Exploratory Data Analysis
+
+After preparing the CSV, run:
+
+```powershell
+python src/explore_data.py
+```
+
+The command reads the local CSV without network access or changes to the source.
+It creates `reports/eda/report.md` with embedded Matplotlib figures, `metadata.json`
+with the input hash and run configuration, `row_features.csv` for record-level
+auditing, and complete CSV tables in `reports/eda/tables/`.
+
+The analysis covers:
+
+- All six severity counts, missing/unknown labels, class imbalance, exploratory
+  class weights, and an always-majority reference baseline.
+- Column completeness, exact duplicate rows/texts, normalized duplicate text,
+  conflicting labels, and candidate `(Project, Bug ID)` collisions.
+- Character and whitespace-word distributions, quantiles, outliers, and word
+  budget thresholds overall and by severity.
+- Project, resolution, and existing split class composition when present,
+  plus normalized-text overlap across existing splits.
+- Unigram/bigram document frequencies, frequent terms by severity, and
+  smoothed class-versus-rest term enrichment.
+
+Matplotlib PNGs are saved under `reports/eda/figures/`: severity distribution,
+full-range text-length histograms, word-count boxplots by class, quality indicators,
+severity mix by available metadata fields, frequent unigrams/bigrams, and term
+prevalence by class. Empty or missing classes remain visible in the outputs.
+
+Customize the input, output, column mapping, or lexical thresholds:
+
+```powershell
+python src/explore_data.py --input data/eclipse_bug_reports.csv --output-dir reports/eda --top-n 15 --min-df 10
+python src/explore_data.py --input data/custom.csv --text-column "Summary" --label-column "Severity"
+```
+
+Blank text is excluded from length and duplicate-text statistics. Labels are
+trimmed and lowercased for analysis; invalid labels remain visible in quality
+and segment tables. Word counts are **not** DistilBERT tokenizer lengths, and
+term associations are **not** SHAP attributions. Full-dataset EDA weights and
+vocabulary statistics must be recomputed on training data before modeling.
+No train/test partition or preprocessing changes are made by this command.
 
 ---
 

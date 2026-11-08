@@ -1,2 +1,3 @@
 datasets
 pandas
+matplotlib>=3.9

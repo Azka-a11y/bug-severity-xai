@@ -23,6 +23,9 @@ data/*
 !data/.gitkeep
 !data/dataset_summary.md
 
+# Reproducible EDA artifacts (generated locally from the source CSV)
+reports/eda/
+
 # Hugging Face cache
 .cache/
 
